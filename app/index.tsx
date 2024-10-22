@@ -1,20 +1,39 @@
-// app/index.tsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+
+
+
 
 const HomeScreen: React.FC = () => {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [recipes, setRecipes] = useState([
-    { id: '1', title: 'Spaghetti Carbonara', category: 'Italienne' },
-    { id: '2', title: 'Poulet Tikka Masala', category: 'Indienne' },
-    { id: '3', title: 'Crêpes', category: 'Française' }
-  ]);
+  const [recipes, setRecipes] = useState([]);
+
+  // Fonction pour charger les recettes depuis AsyncStorage
+  const loadRecipes = async () => {
+    try {
+      const storedRecipes = await AsyncStorage.getItem('recipes');
+      const parsedRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+      setRecipes(parsedRecipes);
+    } catch (error) {
+      console.log('Erreur lors de la récupération des recettes :', error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadRecipes();
+    }, [])
+  );
+  // Utiliser useEffect pour charger les recettes au démarrage
+  useEffect(() => {
+    loadRecipes();
+  }, []);
 
   const handleSearch = () => {
-    // Implémentez la logique de recherche ici
     console.log('Recherche de:', search);
   };
 
@@ -41,7 +60,7 @@ const HomeScreen: React.FC = () => {
       <FlatList
         data={recipes}
         renderItem={renderRecipe}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()}
       />
 
       <Button
