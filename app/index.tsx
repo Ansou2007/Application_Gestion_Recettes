@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-
-
-
 
 const HomeScreen: React.FC = () => {
   const router = useRouter();
@@ -23,11 +19,6 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadRecipes();
-    }, [])
-  );
   // Utiliser useEffect pour charger les recettes au démarrage
   useEffect(() => {
     loadRecipes();
@@ -37,10 +28,20 @@ const HomeScreen: React.FC = () => {
     console.log('Recherche de:', search);
   };
 
-  const renderRecipe = ({ item }: { item: { id: string; title: string; category: string } }) => (
-    <TouchableOpacity style={styles.recipeCard} onPress={() => router.push(`/recipe/${item.id}`)}>
-      <Text style={styles.recipeTitle}>{item.title}</Text>
-      <Text style={styles.recipeCategory}>{item.category}</Text>
+  const renderRecipe = ({ item }: { item: { title: string; ingredients: string; image: string } }) => (
+    <TouchableOpacity style={styles.recipeCard} onPress={() => router.push(`/recipe/${item.title}`)}>
+      {/* Afficher l'image de la recette */}
+      {item.image && (
+        <Image source={{ uri: item.image }} style={styles.recipeImage} />
+      )}
+
+      {/* Titre de la recette */}
+      <View style={styles.recipeContent}>
+        <Text style={styles.recipeTitle}>{item.title}</Text>
+        <Text style={styles.recipeIngredients}>
+          {item.ingredients.length > 50 ? `${item.ingredients.substring(0, 50)}...` : item.ingredients}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -54,7 +55,9 @@ const HomeScreen: React.FC = () => {
         value={search}
         onChangeText={setSearch}
       />
-      <Button title="Rechercher" onPress={handleSearch} />
+      <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
+        <Text style={styles.searchButtonText}>Rechercher</Text>
+      </TouchableOpacity>
 
       <Text style={styles.subtitle}>Recettes Populaires</Text>
       <FlatList
@@ -63,10 +66,12 @@ const HomeScreen: React.FC = () => {
         keyExtractor={(item, index) => index.toString()}
       />
 
-      <Button
-        title="Ajouter une nouvelle recette"
+      <TouchableOpacity
+        style={styles.addButton}
         onPress={() => router.push('/add-recipe')}
-      />
+      >
+        <Text style={styles.addButtonText}>Ajouter une nouvelle recette</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -93,6 +98,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 20,
   },
+  searchButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  searchButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
   subtitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -101,20 +117,41 @@ const styles = StyleSheet.create({
   recipeCard: {
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
+    borderRadius: 10,
+    marginBottom: 20,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  recipeImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  recipeContent: {
+    padding: 10,
   },
   recipeTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 5,
   },
-  recipeCategory: {
+  recipeIngredients: {
     fontSize: 14,
     color: '#666',
+  },
+  addButton: {
+    backgroundColor: '#28a745',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
