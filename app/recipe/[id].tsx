@@ -26,6 +26,29 @@ const RecipeDetailsScreen: React.FC = () => {
         return <Text>Chargement...</Text>;
     }
 
+    // Fonction pour basculer le statut de favori
+    const toggleFavorite = async () => {
+        try {
+            const storedRecipes = await AsyncStorage.getItem('recipes');
+            const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+
+            const updatedRecipes = recipes.map((r: any) => {
+                if (r.title === recipe.title) {
+                    return { ...r, isFavorite: !r.isFavorite }; // Toggle isFavorite
+                }
+                return r;
+            });
+
+            await AsyncStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+            setRecipe((prevRecipe: any) => ({
+                ...prevRecipe,
+                isFavorite: !prevRecipe.isFavorite,
+            }));
+        } catch (error) {
+            Alert.alert('Erreur', 'Impossible de mettre à jour la recette.');
+        }
+    };
+
     // Fonction pour supprimer la recette
     const deleteRecipe = async () => {
         try {
@@ -64,6 +87,12 @@ const RecipeDetailsScreen: React.FC = () => {
 
             <Button title="Modifier la recette" onPress={() => router.push(`/edit-recipe/${recipe.title}`)} />
             <Button title="Supprimer la recette" onPress={confirmDelete} color="red" />
+
+            {/* Bouton pour ajouter/retirer des favoris */}
+            <Button
+                title={recipe.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                onPress={toggleFavorite}
+            />
         </View>
     );
 };
