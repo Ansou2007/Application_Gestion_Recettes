@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, Button, StyleSheet } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router'; // Vérifier l'import
+import { View, Text, Image, Button, StyleSheet, Alert } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RecipeDetailsScreen: React.FC = () => {
     const [recipe, setRecipe] = useState<any>(null);
-    const { id } = useLocalSearchParams(); // Utiliser useLocalSearchParams pour récupérer l'ID
+    const { id } = useLocalSearchParams(); // Récupérer l'ID de la recette
     const router = useRouter();
 
     useEffect(() => {
-        // Vérifier que l'ID est bien récupéré
-        console.log('ID de la recette:', id);
-
         const loadRecipe = async () => {
             try {
                 const storedRecipes = await AsyncStorage.getItem('recipes');
@@ -29,6 +26,33 @@ const RecipeDetailsScreen: React.FC = () => {
         return <Text>Chargement...</Text>;
     }
 
+    // Fonction pour supprimer la recette
+    const deleteRecipe = async () => {
+        try {
+            const storedRecipes = await AsyncStorage.getItem('recipes');
+            const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+            const updatedRecipes = recipes.filter((r: any) => r.title !== id); // Retirer la recette par titre
+
+            await AsyncStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+            Alert.alert('Succès', 'La recette a été supprimée avec succès.');
+            router.push('/'); // Redirection après suppression
+        } catch (error) {
+            Alert.alert('Erreur', 'Impossible de supprimer la recette.');
+        }
+    };
+
+    // Alerte pour confirmer la suppression
+    const confirmDelete = () => {
+        Alert.alert(
+            'Confirmer la suppression',
+            'Êtes-vous sûr de vouloir supprimer cette recette ?',
+            [
+                { text: 'Annuler', style: 'cancel' },
+                { text: 'Supprimer', onPress: deleteRecipe, style: 'destructive' },
+            ]
+        );
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{recipe.title}</Text>
@@ -39,6 +63,7 @@ const RecipeDetailsScreen: React.FC = () => {
             <Text>{recipe.instructions}</Text>
 
             <Button title="Modifier la recette" onPress={() => router.push(`/edit-recipe/${recipe.title}`)} />
+            <Button title="Supprimer la recette" onPress={confirmDelete} color="red" />
         </View>
     );
 };
