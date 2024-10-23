@@ -14,7 +14,7 @@ const FavoritesScreen = () => {
             const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
 
             // Filtrer les recettes qui sont marquées comme favorites
-            const favorites = recipes.filter((r) => r.isFavorite === true);
+            const favorites = recipes.filter((r: { isFavorite: boolean; }) => r.isFavorite === true);
             setFavoriteRecipes(favorites);
         } catch (error) {
             console.log('Erreur lors de la récupération des recettes favorites :', error);

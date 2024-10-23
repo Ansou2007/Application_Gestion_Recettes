@@ -1,19 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';  // Importation de l'icône
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Fonction utilitaire pour le debounce
+const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timeoutId: NodeJS.Timeout | null = null;
+  return (...args: any[]) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+
+
+
 const HomeScreen: React.FC = () => {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [recipes, setRecipes] = useState([]);
+  const [filteredRecipes, setFilteredRecipes] = useState(recipes);  // Initialiser avec une liste vide
 
   const loadRecipes = async () => {
     try {
       const storedRecipes = await AsyncStorage.getItem('recipes');
       const parsedRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
       setRecipes(parsedRecipes);
+      setFilteredRecipes(parsedRecipes);  // Initialiser les recettes filtrées
     } catch (error) {
       console.log('Erreur lors de la récupération des recettes :', error);
     }
@@ -22,6 +40,32 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     loadRecipes();
   }, []);
+
+  // Fonction pour filtrer les recettes
+  const filterRecipes = useCallback(
+    (searchText: string) => {
+      if (searchText.trim() === '') {
+        setFilteredRecipes(recipes);
+      } else {
+        const lowercasedSearch = searchText.toLowerCase();
+        const filtered = recipes.filter((recipe) => {
+          const title = typeof recipe.title === 'string' ? recipe.title.toLowerCase() : '';
+          const ingredients = typeof recipe.ingredients === 'string' ? recipe.ingredients.toLowerCase() : '';
+          return title.includes(lowercasedSearch) || ingredients.includes(lowercasedSearch);
+        });
+        setFilteredRecipes(filtered);
+      }
+    },
+    [recipes]
+  );
+
+
+  // Débouncer pour éviter le filtrage trop rapide
+  const debouncedFilter = useCallback(debounce(filterRecipes, 300), [filterRecipes]);
+
+  useEffect(() => {
+    debouncedFilter(search);
+  }, [search, debouncedFilter]);
 
   const renderRecipe = ({ item }: { item: { title: string; ingredients: string; image: string } }) => (
     <TouchableOpacity style={styles.recipeCard} onPress={() => router.push(`/recipe/${item.title}`)}>
@@ -39,11 +83,11 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> Recettes de Cuisine</Text>
+      <Text style={styles.title}>Recettes de Cuisine</Text>
 
       <TextInput
         style={styles.searchInput}
-        placeholder="Rechercher une recette..."
+        placeholder="Rechercher une recette par nom ou ingrédient..."
         value={search}
         onChangeText={setSearch}
       />
@@ -56,7 +100,7 @@ const HomeScreen: React.FC = () => {
 
       <Text style={styles.subtitle}>Recettes Populaires</Text>
       <FlatList
-        data={recipes}
+        data={filteredRecipes}  // Utiliser les recettes filtrées ici
         renderItem={renderRecipe}
         keyExtractor={(item, index) => index.toString()}
       />
