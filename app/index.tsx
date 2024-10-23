@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';  // Importation de l'icône
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -8,7 +9,6 @@ const HomeScreen: React.FC = () => {
   const [search, setSearch] = useState('');
   const [recipes, setRecipes] = useState([]);
 
-  // Fonction pour charger les recettes depuis AsyncStorage
   const loadRecipes = async () => {
     try {
       const storedRecipes = await AsyncStorage.getItem('recipes');
@@ -19,23 +19,15 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  // Utiliser useEffect pour charger les recettes au démarrage
   useEffect(() => {
     loadRecipes();
   }, []);
 
-  const handleSearch = () => {
-    console.log('Recherche de:', search);
-  };
-
   const renderRecipe = ({ item }: { item: { title: string; ingredients: string; image: string } }) => (
     <TouchableOpacity style={styles.recipeCard} onPress={() => router.push(`/recipe/${item.title}`)}>
-      {/* Afficher l'image de la recette */}
       {item.image && (
         <Image source={{ uri: item.image }} style={styles.recipeImage} />
       )}
-
-      {/* Titre de la recette */}
       <View style={styles.recipeContent}>
         <Text style={styles.recipeTitle}>{item.title}</Text>
         <Text style={styles.recipeIngredients}>
@@ -47,7 +39,7 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenue sur l'application de Recettes de Cuisine</Text>
+      <Text style={styles.title}> Recettes de Cuisine</Text>
 
       <TextInput
         style={styles.searchInput}
@@ -55,8 +47,11 @@ const HomeScreen: React.FC = () => {
         value={search}
         onChangeText={setSearch}
       />
-      <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
-        <Text style={styles.searchButtonText}>Rechercher</Text>
+
+      {/* Bouton pour accéder aux recettes favorites */}
+      <TouchableOpacity style={styles.favoriteButton} onPress={() => router.push('/favorites')}>
+        <Ionicons name="heart" size={24} color="white" />
+        <Text style={styles.favoriteButtonText}>Recettes Favorites</Text>
       </TouchableOpacity>
 
       <Text style={styles.subtitle}>Recettes Populaires</Text>
@@ -98,15 +93,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 20,
   },
-  searchButton: {
-    backgroundColor: '#007BFF',
+  favoriteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff6347',
     padding: 10,
     borderRadius: 8,
     marginBottom: 20,
   },
-  searchButtonText: {
-    color: '#fff',
-    textAlign: 'center',
+  favoriteButtonText: {
+    color: 'white',
+    fontSize: 16,
+    marginLeft: 10,
     fontWeight: 'bold',
   },
   subtitle: {
