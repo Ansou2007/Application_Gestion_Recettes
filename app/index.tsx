@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';  // Importation de l'icône
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Fonction utilitaire pour le debounce
 const debounce = (func: (...args: any[]) => void, delay: number) => {
   let timeoutId: NodeJS.Timeout | null = null;
   return (...args: any[]) => {
@@ -17,21 +16,18 @@ const debounce = (func: (...args: any[]) => void, delay: number) => {
   };
 };
 
-
-
-
 const HomeScreen: React.FC = () => {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [recipes, setRecipes] = useState([]);
-  const [filteredRecipes, setFilteredRecipes] = useState(recipes);  // Initialiser avec une liste vide
+  const [filteredRecipes, setFilteredRecipes] = useState(recipes);
 
   const loadRecipes = async () => {
     try {
       const storedRecipes = await AsyncStorage.getItem('recipes');
       const parsedRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
       setRecipes(parsedRecipes);
-      setFilteredRecipes(parsedRecipes);  // Initialiser les recettes filtrées
+      setFilteredRecipes(parsedRecipes);
     } catch (error) {
       console.log('Erreur lors de la récupération des recettes :', error);
     }
@@ -41,7 +37,6 @@ const HomeScreen: React.FC = () => {
     loadRecipes();
   }, []);
 
-  // Fonction pour filtrer les recettes
   const filterRecipes = useCallback(
     (searchText: string) => {
       if (searchText.trim() === '') {
@@ -59,8 +54,6 @@ const HomeScreen: React.FC = () => {
     [recipes]
   );
 
-
-  // Débouncer pour éviter le filtrage trop rapide
   const debouncedFilter = useCallback(debounce(filterRecipes, 300), [filterRecipes]);
 
   useEffect(() => {
@@ -85,32 +78,41 @@ const HomeScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Recettes de Cuisine</Text>
 
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Rechercher une recette par nom ou ingrédient..."
-        value={search}
-        onChangeText={setSearch}
-      />
-
-      {/* Bouton pour accéder aux recettes favorites */}
-      <TouchableOpacity style={styles.favoriteButton} onPress={() => router.push('/favorites')}>
-        <Ionicons name="heart" size={24} color="white" />
-        <Text style={styles.favoriteButtonText}>Recettes Favorites</Text>
-      </TouchableOpacity>
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Rechercher une recette par nom ou ingrédient..."
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
 
       <Text style={styles.subtitle}>Recettes Populaires</Text>
       <FlatList
-        data={filteredRecipes}  // Utiliser les recettes filtrées ici
+        data={filteredRecipes}
         renderItem={renderRecipe}
         keyExtractor={(item, index) => index.toString()}
       />
 
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => router.push('/add-recipe')}
-      >
-        <Text style={styles.addButtonText}>Ajouter une nouvelle recette</Text>
-      </TouchableOpacity>
+      <View style={styles.bottomBar}>
+        <TouchableOpacity onPress={() => router.push('/home')} style={styles.iconButton}>
+          <Ionicons name="home" size={28} color="white" />
+          <Text style={styles.iconLabel}>Accueil</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/favorites')} style={styles.iconButton}>
+          <Ionicons name="heart" size={28} color="white" />
+          <Text style={styles.iconLabel}>Favoris</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/search')} style={styles.iconButton}>
+          <Ionicons name="search" size={28} color="white" />
+          <Text style={styles.iconLabel}>Recherche</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/add-recipe')} style={styles.iconButton}>
+          <Ionicons name="add-circle" size={28} color="white" />
+          <Text style={styles.iconLabel}>Ajouter</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -121,6 +123,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingBottom: 80,
     backgroundColor: '#f5f5f5',
   },
   title: {
@@ -128,45 +131,41 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+    color: '#333',
   },
-  searchInput: {
-    height: 40,
-    borderColor: '#ccc',
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
     borderWidth: 1,
-    borderRadius: 8,
+    borderColor: '#ddd',
     paddingHorizontal: 10,
     marginBottom: 20,
   },
-  favoriteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ff6347',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 20,
+  searchIcon: {
+    marginRight: 8,
   },
-  favoriteButtonText: {
-    color: 'white',
-    fontSize: 16,
-    marginLeft: 10,
-    fontWeight: 'bold',
+  searchInput: {
+    flex: 1,
+    height: 45,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#444',
   },
   recipeCard: {
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
+    borderRadius: 12,
+    marginBottom: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 4,
   },
   recipeImage: {
     width: '100%',
@@ -180,21 +179,31 @@ const styles = StyleSheet.create({
   recipeTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
     marginBottom: 5,
   },
   recipeIngredients: {
     fontSize: 14,
-    color: '#666',
+    color: '#777',
   },
-  addButton: {
-    backgroundColor: '#28a745',
-    padding: 10,
-    borderRadius: 8,
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    marginTop: 20,
+    backgroundColor: '#ff6347',
+    paddingHorizontal: 20,
   },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  iconButton: {
+    alignItems: 'center',
+  },
+  iconLabel: {
+    color: 'white',
+    fontSize: 12,
+    marginTop: 2,
   },
 });
