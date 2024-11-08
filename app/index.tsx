@@ -76,19 +76,21 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Recettes de Cuisine</Text>
-
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Rechercher une recette par nom ou ingrédient..."
-          value={search}
-          onChangeText={setSearch}
-        />
+      <View style={styles.headerContainer}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Rechercher une recette..."
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
+        <TouchableOpacity style={styles.notificationButton} onPress={() => console.log('Notification pressed')}>
+          <Ionicons name="notifications-outline" size={24} color="#888" />
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.subtitle}>Recettes Populaires</Text>
       <FlatList
         data={filteredRecipes}
         renderItem={renderRecipe}
@@ -96,19 +98,19 @@ const HomeScreen: React.FC = () => {
       />
 
       <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={() => router.push('/home')} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.push('')} style={styles.iconButton}>
           <Ionicons name="home" size={28} color="white" />
           <Text style={styles.iconLabel}>Accueil</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/favorites')} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.push('favorites')} style={styles.iconButton}>
           <Ionicons name="heart" size={28} color="white" />
           <Text style={styles.iconLabel}>Favoris</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/search')} style={styles.iconButton}>
-          <Ionicons name="search" size={28} color="white" />
-          <Text style={styles.iconLabel}>Recherche</Text>
+        <TouchableOpacity onPress={() => router.push('Categories')} style={styles.iconButton}>
+          <Ionicons name="grid-outline" size={28} color="white" />
+          <Text style={styles.iconLabel}>Catégories</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/add-recipe')} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.push('add-recipe')} style={styles.iconButton}>
           <Ionicons name="add-circle" size={28} color="white" />
           <Text style={styles.iconLabel}>Ajouter</Text>
         </TouchableOpacity>
@@ -122,44 +124,41 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     paddingBottom: 80,
     backgroundColor: '#f5f5f5',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
-  },
-  searchContainer: {
+  headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: '#f5f5f5',
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e8e8e8',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 50,
   },
   searchIcon: {
     marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    height: 45,
+    fontSize: 16,
   },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#444',
+  notificationButton: {
+    marginLeft: 15,
   },
   recipeCard: {
     backgroundColor: '#fff',
     padding: 15,
     borderRadius: 12,
+    marginHorizontal: 15,
     marginBottom: 15,
     shadowColor: '#000',
     shadowOpacity: 0.15,

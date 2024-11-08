@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 const FavoritesScreen = () => {
     const [favoriteRecipes, setFavoriteRecipes] = useState([]);
@@ -53,6 +54,25 @@ const FavoritesScreen = () => {
                     keyExtractor={(item, index) => index.toString()}
                 />
             )}
+
+            <View style={styles.bottomBar}>
+                <TouchableOpacity onPress={() => router.push('/')} style={styles.iconButton}>
+                    <Ionicons name="home" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Accueil</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/favorites')} style={styles.iconButton}>
+                    <Ionicons name="heart" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Favoris</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/Categories')} style={styles.iconButton}>
+                    <Ionicons name="grid-outline" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Catégories</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/add-recipe')} style={styles.iconButton}>
+                    <Ionicons name="add-circle" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Ajouter</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -64,6 +84,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#f5f5f5',
+        paddingBottom: 80, // Assure que la barre de navigation n'est pas recouverte
     },
     title: {
         fontSize: 24,
@@ -104,5 +125,25 @@ const styles = StyleSheet.create({
     recipeIngredients: {
         fontSize: 14,
         color: '#666',
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: '#ff6347',
+        paddingHorizontal: 20,
+    },
+    iconButton: {
+        alignItems: 'center',
+    },
+    iconLabel: {
+        color: 'white',
+        fontSize: 12,
+        marginTop: 2,
     },
 });

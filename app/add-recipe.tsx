@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router'; // Importer le router pour naviguer
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 const AddRecipeScreen = () => {
-    const router = useRouter(); // Utiliser le router pour naviguer
+    const router = useRouter();
     const [title, setTitle] = useState('');
     const [ingredients, setIngredients] = useState('');
     const [instructions, setInstructions] = useState('');
     const [image, setImage] = useState<string | null>(null);
 
-    // Fonction pour ouvrir l'image picker
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -25,7 +25,6 @@ const AddRecipeScreen = () => {
         }
     };
 
-    // Fonction pour sauvegarder la recette
     const saveRecipe = async () => {
         if (title && ingredients && instructions && image) {
             try {
@@ -34,80 +33,144 @@ const AddRecipeScreen = () => {
                 const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
                 recipes.push(newRecipe);
                 await AsyncStorage.setItem('recipes', JSON.stringify(recipes));
-                alert('Recipe saved successfully!');
-                router.push('/'); // Retourner à la page d'accueil après la sauvegarde
+                alert('Recette enregistrée avec succès!');
+                router.push('/');
             } catch (error) {
-                alert('Failed to save recipe');
+                alert("Erreur lors de l'enregistrement de la recette");
             }
         } else {
-            alert('Please fill all the fields and add an image.');
+            alert('Veuillez remplir tous les champs et ajouter une image.');
         }
     };
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 24, marginBottom: 20 }}>Add a New Recipe</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Ajouter une nouvelle recette</Text>
 
-            {/* Input for recipe title */}
             <TextInput
-                placeholder="Recipe Title"
+                placeholder="Titre de la recette"
                 value={title}
                 onChangeText={setTitle}
-                style={{
-                    borderWidth: 1,
-                    padding: 10,
-                    marginBottom: 20,
-                    borderRadius: 5,
-                }}
+                style={styles.input}
             />
 
-            {/* Input for ingredients */}
             <TextInput
-                placeholder="Ingredients (comma separated)"
+                placeholder="Ingrédients (séparés par des virgules)"
                 value={ingredients}
                 onChangeText={setIngredients}
-                style={{
-                    borderWidth: 1,
-                    padding: 10,
-                    marginBottom: 20,
-                    borderRadius: 5,
-                }}
+                style={styles.input}
             />
 
-            {/* Input for instructions */}
             <TextInput
                 placeholder="Instructions"
                 value={instructions}
                 onChangeText={setInstructions}
                 multiline
                 numberOfLines={5}
-                style={{
-                    borderWidth: 1,
-                    padding: 10,
-                    marginBottom: 20,
-                    borderRadius: 5,
-                }}
+                style={styles.input}
             />
 
-            {/* Button to pick an image */}
             <TouchableOpacity onPress={pickImage} style={{ marginBottom: 20 }}>
-                <Text style={{ color: 'blue', textAlign: 'center' }}>
-                    {image ? 'Change Image' : 'Pick an Image'}
+                <Text style={styles.changeImageText}>
+                    {image ? 'Changer l\'image' : 'Ajouter une image'}
                 </Text>
             </TouchableOpacity>
 
-            {/* Display the selected image */}
             {image && (
                 <Image
                     source={{ uri: image }}
-                    style={{ width: 200, height: 200, marginBottom: 20, alignSelf: 'center' }}
+                    style={styles.image}
                 />
             )}
 
-            {/* Button to save the recipe */}
-            <Button title="Save Recipe" onPress={saveRecipe} />
+            <TouchableOpacity style={styles.saveButton} onPress={saveRecipe}>
+                <Text style={styles.saveButtonText}>Sauvegarder la recette</Text>
+            </TouchableOpacity>
+
+            <View style={styles.bottomBar}>
+                <TouchableOpacity onPress={() => router.push('/')} style={styles.iconButton}>
+                    <Ionicons name="home" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Accueil</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/favorites')} style={styles.iconButton}>
+                    <Ionicons name="heart" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Favoris</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/Categories')} style={styles.iconButton}>
+                    <Ionicons name="grid-outline" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Catégories</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/add-recipe')} style={styles.iconButton}>
+                    <Ionicons name="add-circle" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Ajouter</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
 
 export default AddRecipeScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#f5f5f5',
+        paddingBottom: 80,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 10,
+        marginBottom: 20,
+    },
+    image: {
+        width: 200,
+        height: 200,
+        marginBottom: 20,
+        alignSelf: 'center',
+        borderRadius: 10,
+    },
+    changeImageText: {
+        color: 'blue',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    saveButton: {
+        backgroundColor: '#FF6347',
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    saveButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: '#ff6347',
+        paddingHorizontal: 20,
+    },
+    iconButton: {
+        alignItems: 'center',
+    },
+    iconLabel: {
+        color: 'white',
+        fontSize: 12,
+        marginTop: 2,
+    },
+});

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -33,7 +33,6 @@ const EditRecipeScreen: React.FC = () => {
         loadRecipe();
     }, [id]);
 
-    // Fonction pour choisir une nouvelle image
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -93,7 +92,6 @@ const EditRecipeScreen: React.FC = () => {
                 numberOfLines={5}
             />
 
-            {/* Afficher l'image actuelle et choisir une nouvelle image */}
             {image && (
                 <Image source={{ uri: image }} style={styles.image} />
             )}
@@ -104,7 +102,9 @@ const EditRecipeScreen: React.FC = () => {
                 </Text>
             </TouchableOpacity>
 
-            <Button title="Sauvegarder les modifications" onPress={saveChanges} />
+            <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
+                <Text style={styles.saveButtonText}>Sauvegarder les modifications</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -139,5 +139,16 @@ const styles = StyleSheet.create({
         color: 'blue',
         textAlign: 'center',
         marginBottom: 20,
+    },
+    saveButton: {
+        backgroundColor: '#FF6347',
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    saveButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const RecipeDetailsScreen: React.FC = () => {
     const [recipe, setRecipe] = useState<any>(null);
@@ -26,7 +27,6 @@ const RecipeDetailsScreen: React.FC = () => {
         return <Text>Chargement...</Text>;
     }
 
-    // Fonction pour basculer le statut de favori
     const toggleFavorite = async () => {
         try {
             const storedRecipes = await AsyncStorage.getItem('recipes');
@@ -34,7 +34,7 @@ const RecipeDetailsScreen: React.FC = () => {
 
             const updatedRecipes = recipes.map((r: any) => {
                 if (r.title === recipe.title) {
-                    return { ...r, isFavorite: !r.isFavorite }; // Toggle isFavorite
+                    return { ...r, isFavorite: !r.isFavorite };
                 }
                 return r;
             });
@@ -49,22 +49,20 @@ const RecipeDetailsScreen: React.FC = () => {
         }
     };
 
-    // Fonction pour supprimer la recette
     const deleteRecipe = async () => {
         try {
             const storedRecipes = await AsyncStorage.getItem('recipes');
             const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
-            const updatedRecipes = recipes.filter((r: any) => r.title !== id); // Retirer la recette par titre
+            const updatedRecipes = recipes.filter((r: any) => r.title !== id);
 
             await AsyncStorage.setItem('recipes', JSON.stringify(updatedRecipes));
             Alert.alert('Succès', 'La recette a été supprimée avec succès.');
-            router.push('/'); // Redirection après suppression
+            router.push('/');
         } catch (error) {
             Alert.alert('Erreur', 'Impossible de supprimer la recette.');
         }
     };
 
-    // Alerte pour confirmer la suppression
     const confirmDelete = () => {
         Alert.alert(
             'Confirmer la suppression',
@@ -77,23 +75,29 @@ const RecipeDetailsScreen: React.FC = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>{recipe.title}</Text>
             {recipe.image && <Image source={{ uri: recipe.image }} style={styles.image} />}
-            <Text style={styles.sectionTitle}>Ingrédients:</Text>
-            <Text>{recipe.ingredients}</Text>
-            <Text style={styles.sectionTitle}>Instructions:</Text>
-            <Text>{recipe.instructions}</Text>
+            <Text style={styles.sectionTitle}>Ingrédients</Text>
+            <Text style={styles.textContent}>{recipe.ingredients}</Text>
+            <Text style={styles.sectionTitle}>Instructions</Text>
+            <Text style={styles.textContent}>{recipe.instructions}</Text>
 
-            <Button title="Modifier la recette" onPress={() => router.push(`/edit-recipe/${recipe.title}`)} />
-            <Button title="Supprimer la recette" onPress={confirmDelete} color="red" />
-
-            {/* Bouton pour ajouter/retirer des favoris */}
-            <Button
-                title={recipe.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-                onPress={toggleFavorite}
-            />
-        </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={[styles.button, styles.editButton]} onPress={() => router.push(`/edit-recipe/${recipe.title}`)}>
+                    <Ionicons name="pencil" size={18} color="#fff" />
+                    <Text style={styles.buttonText}>Modifier</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={confirmDelete}>
+                    <Ionicons name="trash" size={18} color="#fff" />
+                    <Text style={styles.buttonText}>Supprimer</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.button, styles.favoriteButton]} onPress={toggleFavorite}>
+                    <Ionicons name={recipe.isFavorite ? "heart" : "heart-outline"} size={18} color="#fff" />
+                    <Text style={styles.buttonText}>{recipe.isFavorite ? "Ret des favoris" : "Ajou aux favoris"}</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
     );
 };
 
@@ -103,23 +107,62 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#fafafa',
     },
     title: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 'bold',
-        marginBottom: 10,
+        color: '#333',
+        marginBottom: 15,
     },
     image: {
         width: '100%',
-        height: 200,
+        height: 220,
+        borderRadius: 12,
         marginBottom: 20,
-        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     },
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#555',
         marginTop: 20,
-        marginBottom: 5,
+        marginBottom: 10,
+    },
+    textContent: {
+        fontSize: 16,
+        color: '#666',
+        lineHeight: 24,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 30,
+    },
+    button: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        flex: 1,
+        marginHorizontal: 5,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 14, // Réduire la taille du texte
+        marginLeft: 5,
+    },
+    editButton: {
+        backgroundColor: '#FF6347',
+    },
+    deleteButton: {
+        backgroundColor: '#FF6347',
+    },
+    favoriteButton: {
+        backgroundColor: '#FF6347',
     },
 });
