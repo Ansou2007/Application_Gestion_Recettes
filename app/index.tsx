@@ -4,9 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const debounce = (func: (...args: any[]) => void, delay: number) => {
-  let timeoutId: NodeJS.Timeout | null = null;
-  return (...args: any[]) => {
+const debounce = (func, delay) => {
+  let timeoutId = null;
+  return (...args) => {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
@@ -16,11 +16,12 @@ const debounce = (func: (...args: any[]) => void, delay: number) => {
   };
 };
 
-const HomeScreen: React.FC = () => {
+const HomeScreen = () => {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState(recipes);
+  const [categories] = useState(['All', 'Desserts', 'Entrées', 'Plats', 'Salades', 'Boissons', 'Desserts', 'Entrées', 'Plats', 'Salades', 'Boissons', 'Desserts', 'Entrées', 'Plats', 'Salades', 'Boissons']);
 
   const loadRecipes = async () => {
     try {
@@ -38,7 +39,7 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   const filterRecipes = useCallback(
-    (searchText: string) => {
+    (searchText) => {
       if (searchText.trim() === '') {
         setFilteredRecipes(recipes);
       } else {
@@ -60,7 +61,7 @@ const HomeScreen: React.FC = () => {
     debouncedFilter(search);
   }, [search, debouncedFilter]);
 
-  const renderRecipe = ({ item }: { item: { title: string; ingredients: string; image: string } }) => (
+  const renderRecipe = ({ item }) => (
     <TouchableOpacity style={styles.recipeCard} onPress={() => router.push(`/recipe/${item.title}`)}>
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.recipeImage} />
@@ -73,13 +74,19 @@ const HomeScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
-  const groupRecipesIntoPairs = (recipes: any[]) => {
+  const groupRecipesIntoPairs = (recipes) => {
     const result = [];
     for (let i = 0; i < recipes.length; i += 2) {
       result.push(recipes.slice(i, i + 2));
     }
     return result;
   };
+
+  const renderCategory = ({ item }) => (
+    <TouchableOpacity style={styles.categoryButton}>
+      <Text style={styles.categoryText}>{item}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -98,11 +105,25 @@ const HomeScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Liste de catégories défilante */}
+      <FlatList
+        data={categories}
+        renderItem={renderCategory}
+        keyExtractor={(item) => item}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryList}
+      />
+
+      {/* Espace entre les catégories et les recettes */}
+      <View style={styles.spacing} />
+
+      {/* Liste des recettes */}
       <FlatList
         data={groupRecipesIntoPairs(filteredRecipes)}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            {item.map((recipe: any, index: number) => (
+            {item.map((recipe, index) => (
               <View key={index} style={styles.recipeContainer}>
                 {renderRecipe({ item: recipe })}
               </View>
@@ -204,6 +225,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
+  },
+  categoryList: {
+    paddingVertical: 10,
+    paddingLeft: 15,
+  },
+  categoryButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 15,
+    marginRight: 10,
+    height: 33,
+    justifyContent: 'center',
+  },
+  categoryText: {
+    color: '#ff6347',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  spacing: {
+    height: 20, // Ajustez la hauteur pour définir l'espace souhaité
   },
   bottomBar: {
     position: 'absolute',
