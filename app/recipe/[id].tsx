@@ -75,29 +75,51 @@ const RecipeDetailsScreen: React.FC = () => {
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>{recipe.title}</Text>
-            {recipe.image && <Image source={{ uri: recipe.image }} style={styles.image} />}
-            <Text style={styles.sectionTitle}>Ingrédients</Text>
-            <Text style={styles.textContent}>{recipe.ingredients}</Text>
-            <Text style={styles.sectionTitle}>Instructions</Text>
-            <Text style={styles.textContent}>{recipe.instructions}</Text>
+        <View style={styles.container}>
+            <ScrollView>
+                <Text style={styles.title}>{recipe.title}</Text>
+                {recipe.image && <Image source={{ uri: recipe.image }} style={styles.image} />}
+                <Text style={styles.sectionTitle}>Ingrédients</Text>
+                <Text style={styles.textContent}>{recipe.ingredients}</Text>
+                <Text style={styles.sectionTitle}>Instructions</Text>
+                <Text style={styles.textContent}>{recipe.instructions}</Text>
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={[styles.button, styles.editButton]} onPress={() => router.push(`/edit-recipe/${recipe.title}`)}>
-                    <Ionicons name="pencil" size={18} color="#fff" />
-                    <Text style={styles.buttonText}>Modifier</Text>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={[styles.button, styles.editButton]} onPress={() => router.push(`/edit-recipe/${recipe.title}`)}>
+                        <Ionicons name="pencil" size={18} color="#fff" />
+                        <Text style={styles.buttonText}>Modifier</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={confirmDelete}>
+                        <Ionicons name="trash" size={18} color="#fff" />
+                        <Text style={styles.buttonText}>Supprimer</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.button, styles.favoriteButton]} onPress={toggleFavorite}>
+                        <Ionicons name={recipe.isFavorite ? "heart" : "heart-outline"} size={18} color="#fff" />
+                        <Text style={styles.buttonText}>{recipe.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+
+            {/* Barre de navigation en bas */}
+            <View style={styles.bottomBar}>
+                <TouchableOpacity onPress={() => router.push('/')} style={styles.iconButton}>
+                    <Ionicons name="home" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Accueil</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={confirmDelete}>
-                    <Ionicons name="trash" size={18} color="#fff" />
-                    <Text style={styles.buttonText}>Supprimer</Text>
+                <TouchableOpacity onPress={() => router.push('/favorites')} style={styles.iconButton}>
+                    <Ionicons name="heart" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Favoris</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.favoriteButton]} onPress={toggleFavorite}>
-                    <Ionicons name={recipe.isFavorite ? "heart" : "heart-outline"} size={18} color="#fff" />
-                    <Text style={styles.buttonText}>{recipe.isFavorite ? "Ret des favoris" : "Ajou aux favoris"}</Text>
+                <TouchableOpacity onPress={() => router.push('/Categories')} style={styles.iconButton}>
+                    <Ionicons name="grid-outline" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Catégories</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/add-recipe')} style={styles.iconButton}>
+                    <Ionicons name="add-circle" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Ajouter</Text>
                 </TouchableOpacity>
             </View>
-        </ScrollView>
+        </View>
     );
 };
 
@@ -107,13 +129,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        paddingBottom: 80,
         backgroundColor: '#fafafa',
+        marginTop: 50,
     },
     title: {
         fontSize: 26,
         fontWeight: 'bold',
         color: '#333',
-        marginBottom: 15,
+        marginBottom: 20,
     },
     image: {
         width: '100%',
@@ -153,7 +177,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: '#fff',
-        fontSize: 14, // Réduire la taille du texte
+        fontSize: 14,
         marginLeft: 5,
     },
     editButton: {
@@ -164,5 +188,25 @@ const styles = StyleSheet.create({
     },
     favoriteButton: {
         backgroundColor: '#FF6347',
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: '#FF6347',
+        paddingHorizontal: 20,
+    },
+    iconButton: {
+        alignItems: 'center',
+    },
+    iconLabel: {
+        color: 'white',
+        fontSize: 12,
+        marginTop: 2,
     },
 });

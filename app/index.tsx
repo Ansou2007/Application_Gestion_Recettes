@@ -62,17 +62,24 @@ const HomeScreen: React.FC = () => {
 
   const renderRecipe = ({ item }: { item: { title: string; ingredients: string; image: string } }) => (
     <TouchableOpacity style={styles.recipeCard} onPress={() => router.push(`/recipe/${item.title}`)}>
-      {item.image && (
+      {item.image ? (
         <Image source={{ uri: item.image }} style={styles.recipeImage} />
+      ) : (
+        <View style={styles.placeholderImage}>
+          <Ionicons name="image" size={50} color="#ccc" />
+        </View>
       )}
-      <View style={styles.recipeContent}>
-        <Text style={styles.recipeTitle}>{item.title}</Text>
-        <Text style={styles.recipeIngredients}>
-          {item.ingredients.length > 50 ? `${item.ingredients.substring(0, 50)}...` : item.ingredients}
-        </Text>
-      </View>
+      <Text style={styles.recipeTitle}>{item.title}</Text>
     </TouchableOpacity>
   );
+
+  const groupRecipesIntoPairs = (recipes: any[]) => {
+    const result = [];
+    for (let i = 0; i < recipes.length; i += 2) {
+      result.push(recipes.slice(i, i + 2));
+    }
+    return result;
+  };
 
   return (
     <View style={styles.container}>
@@ -92,8 +99,16 @@ const HomeScreen: React.FC = () => {
       </View>
 
       <FlatList
-        data={filteredRecipes}
-        renderItem={renderRecipe}
+        data={groupRecipesIntoPairs(filteredRecipes)}
+        renderItem={({ item }) => (
+          <View style={styles.row}>
+            {item.map((recipe: any, index: number) => (
+              <View key={index} style={styles.recipeContainer}>
+                {renderRecipe({ item: recipe })}
+              </View>
+            ))}
+          </View>
+        )}
         keyExtractor={(item, index) => index.toString()}
       />
 
@@ -134,6 +149,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     backgroundColor: '#f5f5f5',
+    marginTop: 20,
   },
   searchContainer: {
     flex: 1,
@@ -156,34 +172,38 @@ const styles = StyleSheet.create({
   },
   recipeCard: {
     backgroundColor: '#fff',
-    padding: 15,
+    padding: 10,
     borderRadius: 12,
-    marginHorizontal: 15,
+    marginHorizontal: 8,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
+    shadowRadius: 5,
     elevation: 4,
+    alignItems: 'center',
+    width: '100%',
   },
   recipeImage: {
     width: '100%',
-    height: 150,
-    borderRadius: 10,
+    height: 120,
+    borderRadius: 8,
     marginBottom: 10,
   },
-  recipeContent: {
-    padding: 10,
+  placeholderImage: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#e8e8e8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginBottom: 10,
   },
   recipeTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 5,
-  },
-  recipeIngredients: {
-    fontSize: 14,
-    color: '#777',
+    textAlign: 'center',
   },
   bottomBar: {
     position: 'absolute',
@@ -195,7 +215,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#ff6347',
-    paddingHorizontal: 20,
   },
   iconButton: {
     alignItems: 'center',
@@ -204,5 +223,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 12,
     marginTop: 2,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+  },
+  recipeContainer: {
+    flex: 1,
+    marginHorizontal: 5,
   },
 });

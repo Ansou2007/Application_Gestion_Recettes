@@ -3,6 +3,7 @@ import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'reac
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
 const EditRecipeScreen: React.FC = () => {
     const { id } = useLocalSearchParams();
@@ -105,6 +106,26 @@ const EditRecipeScreen: React.FC = () => {
             <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
                 <Text style={styles.saveButtonText}>Sauvegarder les modifications</Text>
             </TouchableOpacity>
+
+            {/* Barre de navigation en bas */}
+            <View style={styles.bottomBar}>
+                <TouchableOpacity onPress={() => router.push('/')} style={styles.iconButton}>
+                    <Ionicons name="home" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Accueil</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/favorites')} style={styles.iconButton}>
+                    <Ionicons name="heart" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Favoris</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/Categories')} style={styles.iconButton}>
+                    <Ionicons name="grid-outline" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Catégories</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/add-recipe')} style={styles.iconButton}>
+                    <Ionicons name="add-circle" size={28} color="white" />
+                    <Text style={styles.iconLabel}>Ajouter</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -116,6 +137,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#f5f5f5',
+        marginTop: 20,
     },
     title: {
         fontSize: 24,
@@ -150,5 +172,25 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: '#FF6347',
+        paddingHorizontal: 20,
+    },
+    iconButton: {
+        alignItems: 'center',
+    },
+    iconLabel: {
+        color: 'white',
+        fontSize: 12,
+        marginTop: 2,
     },
 });

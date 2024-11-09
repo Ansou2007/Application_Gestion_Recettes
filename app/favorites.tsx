@@ -8,6 +8,7 @@ const FavoritesScreen = () => {
     const [favoriteRecipes, setFavoriteRecipes] = useState([]);
     const router = useRouter();
 
+
     // Fonction pour charger les recettes favorites depuis AsyncStorage
     const loadFavoriteRecipes = async () => {
         try {
